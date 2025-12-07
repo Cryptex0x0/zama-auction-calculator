@@ -55,7 +55,7 @@ export default function ZamaAuctionCalculator() {
       fdv: 1000000000, 
       label: '🚀 Optimistic', 
       color: 'text-yellow-400',
-      probability: 33
+      probability: 34
     },
     bullish: { 
       price: 2.00, 
@@ -76,7 +76,7 @@ export default function ZamaAuctionCalculator() {
       fdv: 4000000000, 
       label: '⚡ Ultra', 
       color: 'text-yellow-400',
-      probability: 6
+      probability: 7
     }
   };
 
@@ -223,7 +223,7 @@ export default function ZamaAuctionCalculator() {
             <div className="flex items-center gap-2 bg-zinc-900/50 border border-yellow-500/20 rounded-lg px-4 py-2">
               <span className="text-yellow-400 font-bold">JAN 20</span>
               <span className="text-gray-400">•</span>
-              <span className="text-gray-300">TGE</span>
+              <span className="text-gray-300">Rewards</span>
             </div>
           </div>
         </div>
@@ -280,7 +280,7 @@ export default function ZamaAuctionCalculator() {
               </label>
               <div className="mb-3 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
                 <p className="text-xs text-blue-300">
-                  📊 Probabilities based on <a href="https://polymarket.com/event/zama-fdv-above-one-day-after-launch" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-200">Polymarket</a> data (Updated: Dec 6, 2024)
+                  📊 Probabilities based on <a href="https://polymarket.com/event/zama-fdv-above-one-day-after-launch" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-200">Polymarket</a> data (Updated: Dec 7, 2024)
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -370,7 +370,7 @@ export default function ZamaAuctionCalculator() {
                 </div>
 
                 <div className="bg-gradient-to-r from-yellow-500/10 to-white/5 border border-yellow-500/30 rounded-xl p-4">
-                  <h3 className="font-bold mb-3 text-yellow-400">🎯 ROI Projections (Post-TGE)</h3>
+                  <h3 className="font-bold mb-3 text-yellow-400">🎯 ROI Projections (Post-Rewards)</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-300 text-sm">$600M FDV:</span>
