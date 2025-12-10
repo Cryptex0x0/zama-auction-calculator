@@ -44,44 +44,44 @@ export default function ZamaAuctionCalculator() {
     conservative: { 
       price: 0.60, 
       fdv: 600000000, 
-      label: '🟢 Conservative', 
+      label: 'Conservative', 
       color: 'text-yellow-400',
-      probability: 90
+      probability: 80
     },
     base: { 
       price: 0.80, 
       fdv: 800000000, 
-      label: '📊 Base', 
+      label: 'Base', 
       color: 'text-yellow-400',
-      probability: 61
+      probability: 53
     },
     optimistic: { 
       price: 1.00, 
       fdv: 1000000000, 
-      label: '🚀 Optimistic', 
+      label: 'Optimistic', 
       color: 'text-yellow-400',
-      probability: 34
+      probability: 30
     },
     bullish: { 
       price: 2.00, 
       fdv: 2000000000, 
-      label: '💎 Bullish', 
+      label: 'Bullish', 
       color: 'text-yellow-400',
-      probability: 24
+      probability: 21
     },
     moon: { 
       price: 3.00, 
       fdv: 3000000000, 
-      label: '🌙 Moon', 
+      label: 'Moon', 
       color: 'text-yellow-400',
-      probability: 10
+      probability: 7
     },
     ultra: { 
       price: 4.00, 
       fdv: 4000000000, 
-      label: '⚡ Ultra', 
+      label: 'Ultra', 
       color: 'text-yellow-400',
-      probability: 7
+      probability: 5
     }
   };
 
@@ -220,7 +220,12 @@ export default function ZamaAuctionCalculator() {
         
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <img src={zamaLogo} alt="ZAMA" className="w-64 h-auto object-contain" />
+            <div className="relative">
+              {/* Yellow glow effect - increased intensity */}
+              <div className="absolute inset-0 bg-yellow-500/30 blur-3xl rounded-full scale-110"></div>
+              {/* Logo with rounded corners */}
+              <img src={zamaLogo} alt="ZAMA" className="relative w-56 h-auto object-contain rounded-2xl" />
+            </div>
           </div>
           <div className="flex items-center justify-center gap-3 mb-4">
             <Calculator className="w-12 h-12 text-yellow-400" />
@@ -303,7 +308,7 @@ export default function ZamaAuctionCalculator() {
               </label>
               <div className="mb-3 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
                 <p className="text-xs text-blue-300">
-                  📊 Probabilities based on <a href="https://polymarket.com/event/zama-fdv-above-one-day-after-launch" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-200">Polymarket</a> data (Updated: Dec 7, 2024)
+                  🔮 Based on <a href="https://polymarket.com/event/zama-fdv-above-one-day-after-launch" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-200">Polymarket</a> odds (Updated: Dec 10, 2024)
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -313,17 +318,56 @@ export default function ZamaAuctionCalculator() {
                     <button
                       key={key}
                       onClick={() => setSelectedScenario(key)}
-                      className={`p-3 rounded-lg border-2 transition-all relative ${
+                      className={`p-4 rounded-xl border transition-all relative group overflow-hidden ${
                         selectedScenario === key
-                          ? 'border-yellow-500 bg-yellow-500/20'
-                          : 'border-zinc-700 bg-zinc-800/50 hover:border-yellow-500/50'
+                          ? 'border-yellow-500/60 bg-zinc-900/50'
+                          : 'border-zinc-700/50 bg-zinc-900/50 hover:border-yellow-500/40 hover:bg-zinc-800/50'
                       }`}
                     >
-                      <div className={`font-bold ${scenario.color}`}>{scenario.label}</div>
-                      <div className="text-sm text-gray-300">${scenario.price}</div>
-                      <div className="text-xs text-gray-400 mt-1"><span className="font-bold">FDV: {formatFDV(scenario.fdv)}</span></div>
-                      <div className={`text-xs font-semibold mt-1 ${probColor}`}>
-                        {scenario.probability}% chance 📊
+                      {/* Probability fill bar (background) - color adapts to probability */}
+                      <div 
+                        className={`absolute inset-0 transition-all ${
+                          scenario.probability < 15 
+                            ? 'bg-gradient-to-r from-red-500/10 to-red-500/5' 
+                            : scenario.probability <= 50 
+                            ? 'bg-gradient-to-r from-yellow-500/10 to-yellow-500/5'
+                            : 'bg-gradient-to-r from-green-500/10 to-green-500/5'
+                        }`}
+                        style={{ width: `${scenario.probability}%` }}
+                      ></div>
+                      
+                      {/* Content */}
+                      <div className="flex items-center justify-between relative z-10">
+                        <div className="flex items-center gap-3">
+                          {/* Radio circle indicator */}
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ${
+                            selectedScenario === key
+                              ? 'border-yellow-500 bg-yellow-500/20'
+                              : 'border-zinc-600 group-hover:border-yellow-500/50'
+                          }`}>
+                            {selectedScenario === key && (
+                              <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
+                            )}
+                          </div>
+                          
+                          {/* Scenario info */}
+                          <div className="text-left">
+                            <div className={`font-bold text-base ${selectedScenario === key ? 'text-yellow-400' : 'text-gray-200'}`}>
+                              FDV {formatFDV(scenario.fdv).replace('$', '')}$
+                            </div>
+                            <div className="text-sm text-gray-400 mt-0.5">
+                              {scenario.label}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-0.5">
+                              ${scenario.price} clearing price
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Probability on right */}
+                        <div className={`text-right font-semibold text-sm ${probColor} relative z-10`}>
+                          {scenario.probability}% Chance
+                        </div>
                       </div>
                     </button>
                   );
@@ -346,12 +390,12 @@ export default function ZamaAuctionCalculator() {
                 </span>
               </div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-gray-300">Clearing Price:</span>
-                <span className="font-bold text-yellow-400 text-xl">${currentScenario.price}</span>
-              </div>
-              <div className="flex items-center justify-between">
                 <span className="text-gray-300">Market FDV:</span>
                 <span className="font-bold text-white text-xl">{formatFDV(currentScenario.fdv)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-300">Clearing Price:</span>
+                <span className="font-bold text-yellow-400 text-xl">${currentScenario.price}</span>
               </div>
             </div>
 
