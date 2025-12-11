@@ -18,10 +18,11 @@ import React, { useState, useRef } from 'react';
 import { Calculator, TrendingUp, Award, Share2, Copy } from 'lucide-react';
 
 export default function ZamaAuctionCalculator() {
-  const [bidPrice, setBidPrice] = useState(0.80);
-  const [totalInvestment, setTotalInvestment] = useState(8000);
-  const [selectedScenario, setSelectedScenario] = useState('base');
+  const [bidPrice, setBidPrice] = useState('');
+  const [totalInvestment, setTotalInvestment] = useState(0);
+  const [selectedScenario, setSelectedScenario] = useState('');
   const [selectedMeme, setSelectedMeme] = useState('neutral');
+  const [userName, setUserName] = useState('');
   const [copyStatus, setCopyStatus] = useState('');
   const cardRef = useRef(null);
   const twitterHandle = '@cryptex0x0';
@@ -53,7 +54,7 @@ export default function ZamaAuctionCalculator() {
       fdv: 800000000, 
       label: 'Base', 
       color: 'text-yellow-400',
-      probability: 53
+      probability: 55
     },
     optimistic: { 
       price: 1.00, 
@@ -67,7 +68,7 @@ export default function ZamaAuctionCalculator() {
       fdv: 2000000000, 
       label: 'Bullish', 
       color: 'text-yellow-400',
-      probability: 21
+      probability: 15
     },
     moon: { 
       price: 3.00, 
@@ -107,7 +108,7 @@ export default function ZamaAuctionCalculator() {
     };
   };
 
-  const currentScenario = scenarios[selectedScenario];
+  const currentScenario = scenarios[selectedScenario] || scenarios['base']; // Fallback to base if none selected
   
   const memeOptions = {
     happy: { image: pepeHappyZamaImage, label: 'Rich', emoji: '💰' },
@@ -117,7 +118,7 @@ export default function ZamaAuctionCalculator() {
   
   const currentMeme = memeOptions[selectedMeme];
   const results = calculateAllocation(currentScenario.price);
-  const currentFDV = bidPrice * totalSupply;
+  const currentFDV = (bidPrice || 0) * totalSupply;
 
   const calculateROI = (targetFDV) => {
     if (results.tokensReceived === 0) return 0;
@@ -274,7 +275,8 @@ export default function ZamaAuctionCalculator() {
                   step="0.01"
                   value={bidPrice}
                   onChange={(e) => setBidPrice(parseFloat(e.target.value) || 0)}
-                  className="w-full bg-black border border-yellow-500/30 rounded-lg pl-8 pr-4 py-3 text-white focus:border-yellow-500 focus:outline-none"
+                  placeholder="Min 0.005"
+                  className="w-full bg-black border border-yellow-500/30 rounded-lg pl-8 pr-4 py-3 text-white placeholder:text-gray-500 focus:border-yellow-500 focus:outline-none"
                 />
               </div>
             </div>
@@ -288,9 +290,10 @@ export default function ZamaAuctionCalculator() {
                 <input
                   type="number"
                   step="100"
-                  value={totalInvestment}
+                  value={totalInvestment || ''}
                   onChange={(e) => setTotalInvestment(parseFloat(e.target.value) || 0)}
-                  className="w-full bg-black border border-yellow-500/30 rounded-lg pl-8 pr-4 py-3 text-white focus:border-yellow-500 focus:outline-none"
+                  placeholder="Enter amount (e.g., 10000)"
+                  className="w-full bg-black border border-yellow-500/30 rounded-lg pl-8 pr-4 py-3 text-white placeholder:text-gray-500 focus:border-yellow-500 focus:outline-none"
                 />
               </div>
             </div>
@@ -308,7 +311,7 @@ export default function ZamaAuctionCalculator() {
               </label>
               <div className="mb-3 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
                 <p className="text-xs text-blue-300">
-                  🔮 Based on <a href="https://polymarket.com/event/zama-fdv-above-one-day-after-launch" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-200">Polymarket</a> odds (Updated: Dec 10, 2024)
+                  🔮 Based on <a href="https://polymarket.com/event/zama-fdv-above-one-day-after-launch" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-200">Polymarket</a> odds (Updated: Dec 11, 2024)
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -320,7 +323,7 @@ export default function ZamaAuctionCalculator() {
                       onClick={() => setSelectedScenario(key)}
                       className={`p-4 rounded-xl border transition-all relative group overflow-hidden ${
                         selectedScenario === key
-                          ? 'border-yellow-500/60 bg-zinc-900/50'
+                          ? 'border-white/60 bg-zinc-900/50'
                           : 'border-zinc-700/50 bg-zinc-900/50 hover:border-yellow-500/40 hover:bg-zinc-800/50'
                       }`}
                     >
@@ -342,17 +345,17 @@ export default function ZamaAuctionCalculator() {
                           {/* Radio circle indicator */}
                           <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ${
                             selectedScenario === key
-                              ? 'border-yellow-500 bg-yellow-500/20'
+                              ? 'border-white bg-white/20'
                               : 'border-zinc-600 group-hover:border-yellow-500/50'
                           }`}>
                             {selectedScenario === key && (
-                              <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
+                              <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
                             )}
                           </div>
                           
                           {/* Scenario info */}
                           <div className="text-left">
-                            <div className={`font-bold text-base ${selectedScenario === key ? 'text-yellow-400' : 'text-gray-200'}`}>
+                            <div className={`font-bold text-base ${selectedScenario === key ? 'text-white' : 'text-gray-200'}`}>
                               FDV {formatFDV(scenario.fdv).replace('$', '')}$
                             </div>
                             <div className="text-sm text-gray-400 mt-0.5">
@@ -383,23 +386,31 @@ export default function ZamaAuctionCalculator() {
             </h2>
 
             <div className="mb-6 p-4 bg-black/50 rounded-xl border border-yellow-500/30">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-gray-300">Scenario:</span>
-                <span className={`font-bold text-lg ${currentScenario.color}`}>
-                  {currentScenario.label}
-                </span>
-              </div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-gray-300">Market FDV:</span>
-                <span className="font-bold text-white text-xl">{formatFDV(currentScenario.fdv)}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-300">Clearing Price:</span>
-                <span className="font-bold text-yellow-400 text-xl">${currentScenario.price}</span>
-              </div>
+              {!selectedScenario ? (
+                <div className="text-center py-4">
+                  <p className="text-gray-400 text-sm">👆 Please select a clearing price scenario above</p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-gray-300">Scenario:</span>
+                    <span className={`font-bold text-lg ${currentScenario.color}`}>
+                      {currentScenario.label}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-gray-300">Market FDV:</span>
+                    <span className="font-bold text-white text-xl">{formatFDV(currentScenario.fdv)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">Clearing Price:</span>
+                    <span className="font-bold text-yellow-400 text-xl">${currentScenario.price}</span>
+                  </div>
+                </>
+              )}
             </div>
 
-            {results.tokensReceived > 0 ? (
+            {selectedScenario && results.tokensReceived > 0 ? (
               <>
                 <div className="space-y-4 mb-6">
                   <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-xl p-4">
@@ -479,12 +490,23 @@ export default function ZamaAuctionCalculator() {
                 </div>
               </>
             ) : (
-              <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-6 text-center">
-                <div className="text-4xl mb-2">❌</div>
-                <div className="text-xl font-bold text-red-400 mb-2">Bid Too Low</div>
+              <div className={`border rounded-xl p-6 text-center ${
+                !selectedScenario || !bidPrice 
+                  ? 'bg-yellow-500/10 border-yellow-500/30' 
+                  : 'bg-red-500/20 border-red-500/50'
+              }`}>
+                <div className="text-4xl mb-2">{!selectedScenario || !bidPrice ? '💡' : '❌'}</div>
+                <div className={`text-xl font-bold mb-2 ${
+                  !selectedScenario || !bidPrice ? 'text-yellow-400' : 'text-red-400'
+                }`}>
+                  {!selectedScenario || !bidPrice ? 'Get Started' : 'Bid Too Low'}
+                </div>
                 <p className="text-gray-300 text-sm">
-                  Your bid of ${bidPrice} is lower than the clearing price of ${currentScenario.price}.
-                  You will receive no tokens and your investment will be refunded.
+                  {!selectedScenario || !bidPrice ? (
+                    <>Please select a clearing price scenario and enter your bid price above.</>
+                  ) : (
+                    <>Your bid of ${bidPrice} is lower than the clearing price of ${currentScenario.price}. You will receive no tokens and your investment will be refunded.</>
+                  )}
                 </p>
               </div>
             )}
@@ -497,6 +519,21 @@ export default function ZamaAuctionCalculator() {
               <Share2 className="w-6 h-6" />
               Flex Your Stats 💪
             </h3>
+            
+            {/* Name Input */}
+            <div className="mb-6 max-w-md mx-auto">
+              <label className="block text-sm font-medium mb-2 text-gray-300 text-center">
+                Your Name
+              </label>
+              <input
+                type="text"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                placeholder="Enter your name"
+                maxLength={30}
+                className="w-full bg-black border border-yellow-500/30 rounded-lg px-4 py-2 text-white text-center placeholder:text-gray-500 focus:border-yellow-500 focus:outline-none"
+              />
+            </div>
             
             {/* Meme Selector */}
             <div className="mb-6 flex justify-center gap-3">
@@ -515,8 +552,52 @@ export default function ZamaAuctionCalculator() {
               ))}
             </div>
             
-            <div ref={cardRef} className="bg-black border border-yellow-500/30 rounded-xl p-6 max-w-2xl mx-auto">
-              <div className="flex items-center gap-6">
+            <div ref={cardRef} className="relative bg-black border border-yellow-500/30 rounded-xl p-6 max-w-2xl mx-auto overflow-hidden">
+              {/* Light rays from BOTTOM to TOP */}
+              {/* Yellow rays */}
+              <div className="absolute bottom-0 right-0 w-0.5 h-32 bg-gradient-to-t from-yellow-500/15 to-transparent rotate-12 origin-bottom"></div>
+              <div className="absolute bottom-0 right-4 w-0.5 h-40 bg-gradient-to-t from-yellow-500/12 to-transparent rotate-18 origin-bottom"></div>
+              <div className="absolute bottom-0 right-8 w-0.5 h-36 bg-gradient-to-t from-yellow-500/10 to-transparent rotate-6 origin-bottom"></div>
+              <div className="absolute bottom-0 right-12 w-0.5 h-44 bg-gradient-to-t from-yellow-500/14 to-transparent rotate-24 origin-bottom"></div>
+              <div className="absolute bottom-0 right-16 w-0.5 h-38 bg-gradient-to-t from-yellow-500/8 to-transparent rotate-0 origin-bottom"></div>
+              <div className="absolute bottom-0 right-20 w-0.5 h-42 bg-gradient-to-t from-yellow-500/11 to-transparent -rotate-6 origin-bottom"></div>
+              <div className="absolute bottom-0 right-24 w-0.5 h-40 bg-gradient-to-t from-yellow-500/13 to-transparent -rotate-12 origin-bottom"></div>
+              <div className="absolute bottom-0 right-28 w-0.5 h-36 bg-gradient-to-t from-yellow-500/9 to-transparent -rotate-18 origin-bottom"></div>
+              
+              {/* White rays from bottom */}
+              <div className="absolute bottom-0 right-2 w-0.5 h-38 bg-gradient-to-t from-white/12 to-transparent rotate-15 origin-bottom"></div>
+              <div className="absolute bottom-0 right-6 w-0.5 h-42 bg-gradient-to-t from-white/10 to-transparent rotate-9 origin-bottom"></div>
+              <div className="absolute bottom-0 right-10 w-0.5 h-40 bg-gradient-to-t from-white/8 to-transparent rotate-3 origin-bottom"></div>
+              <div className="absolute bottom-0 right-14 w-0.5 h-44 bg-gradient-to-t from-white/11 to-transparent -rotate-3 origin-bottom"></div>
+              <div className="absolute bottom-0 right-18 w-0.5 h-36 bg-gradient-to-t from-white/9 to-transparent -rotate-9 origin-bottom"></div>
+              <div className="absolute bottom-0 right-22 w-0.5 h-42 bg-gradient-to-t from-white/10 to-transparent -rotate-15 origin-bottom"></div>
+              <div className="absolute bottom-0 right-26 w-0.5 h-38 bg-gradient-to-t from-white/12 to-transparent -rotate-21 origin-bottom"></div>
+              <div className="absolute bottom-0 right-30 w-0.5 h-40 bg-gradient-to-t from-white/8 to-transparent -rotate-24 origin-bottom"></div>
+              
+              {/* Light rays from TOP to BOTTOM */}
+              {/* Yellow rays from top */}
+              <div className="absolute top-0 right-0 w-0.5 h-32 bg-gradient-to-b from-yellow-500/13 to-transparent -rotate-12 origin-top"></div>
+              <div className="absolute top-0 right-5 w-0.5 h-38 bg-gradient-to-b from-yellow-500/11 to-transparent -rotate-18 origin-top"></div>
+              <div className="absolute top-0 right-10 w-0.5 h-35 bg-gradient-to-b from-yellow-500/9 to-transparent -rotate-6 origin-top"></div>
+              <div className="absolute top-0 right-15 w-0.5 h-42 bg-gradient-to-b from-yellow-500/12 to-transparent -rotate-24 origin-top"></div>
+              <div className="absolute top-0 right-20 w-0.5 h-36 bg-gradient-to-b from-yellow-500/10 to-transparent rotate-0 origin-top"></div>
+              <div className="absolute top-0 right-25 w-0.5 h-40 bg-gradient-to-b from-yellow-500/11 to-transparent rotate-6 origin-top"></div>
+              
+              {/* White rays from top */}
+              <div className="absolute top-0 right-3 w-0.5 h-36 bg-gradient-to-b from-white/10 to-transparent -rotate-15 origin-top"></div>
+              <div className="absolute top-0 right-8 w-0.5 h-40 bg-gradient-to-b from-white/9 to-transparent -rotate-9 origin-top"></div>
+              <div className="absolute top-0 right-13 w-0.5 h-38 bg-gradient-to-b from-white/8 to-transparent -rotate-3 origin-top"></div>
+              <div className="absolute top-0 right-18 w-0.5 h-42 bg-gradient-to-b from-white/11 to-transparent rotate-3 origin-top"></div>
+              <div className="absolute top-0 right-23 w-0.5 h-35 bg-gradient-to-b from-white/9 to-transparent rotate-9 origin-top"></div>
+              <div className="absolute top-0 right-28 w-0.5 h-38 bg-gradient-to-b from-white/10 to-transparent rotate-15 origin-top"></div>
+              
+              {/* Soft circular glows */}
+              <div className="absolute bottom-0 right-0 w-48 h-48 bg-yellow-500/8 blur-3xl rounded-full"></div>
+              <div className="absolute top-0 right-0 w-40 h-40 bg-yellow-500/6 blur-3xl rounded-full"></div>
+              <div className="absolute bottom-0 right-0 w-32 h-32 bg-white/6 blur-2xl rounded-full"></div>
+              
+              {/* Content */}
+              <div className="flex items-center gap-6 relative z-10">
                 <div className="flex-shrink-0 bg-black rounded-lg p-2 flex items-center justify-center">
                   <img 
                     src={currentMeme.image}
@@ -527,7 +608,9 @@ export default function ZamaAuctionCalculator() {
                 
                 <div className="flex-1 space-y-4">
                   <div className="text-center">
-                    <h4 className="text-xl font-bold text-yellow-400 mb-2">My ZAMA Auction Strategy 🚀</h4>
+                    <h4 className="text-xl font-bold text-yellow-400 mb-2">
+                      {userName ? `${userName}'s ZAMA Strategy 🚀` : 'My ZAMA Auction Strategy 🚀'}
+                    </h4>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
@@ -567,8 +650,7 @@ export default function ZamaAuctionCalculator() {
                   </div>
                   
                   <div className="bg-zinc-800/50 border border-zinc-700 rounded-lg p-3">
-                    <div className="text-xs text-gray-400 mb-1">Scenario: {currentScenario.label}</div>
-                    <div className="text-sm text-gray-300">Clearing Price: <span className="text-yellow-400 font-bold">${currentScenario.price}</span></div>
+                    <div className="text-sm text-gray-300 text-center">Scenario: <span className="text-yellow-400 font-bold">{currentScenario.label}</span></div>
                   </div>
                 </div>
               </div>
