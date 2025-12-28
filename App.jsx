@@ -23,6 +23,7 @@ export default function ZamaAuctionCalculator() {
   const [selectedScenario, setSelectedScenario] = useState('');
   const [selectedMeme, setSelectedMeme] = useState('neutral');
   const [userName, setUserName] = useState('');
+  const [hasOGNFT, setHasOGNFT] = useState(false);
   const [copyStatus, setCopyStatus] = useState('');
   const cardRef = useRef(null);
   const twitterHandle = '@cryptex0x0';
@@ -47,35 +48,35 @@ export default function ZamaAuctionCalculator() {
       fdv: 600000000, 
       label: 'Conservative', 
       color: 'text-yellow-400',
-      probability: 80
+      probability: 59
     },
     base: { 
       price: 0.80, 
       fdv: 800000000, 
       label: 'Base', 
       color: 'text-yellow-400',
-      probability: 55
+      probability: 35
     },
     optimistic: { 
       price: 1.00, 
       fdv: 1000000000, 
       label: 'Optimistic', 
       color: 'text-yellow-400',
-      probability: 30
+      probability: 19
     },
     bullish: { 
       price: 2.00, 
       fdv: 2000000000, 
       label: 'Bullish', 
       color: 'text-yellow-400',
-      probability: 15
+      probability: 6
     },
     moon: { 
       price: 3.00, 
       fdv: 3000000000, 
       label: 'Moon', 
       color: 'text-yellow-400',
-      probability: 7
+      probability: 3
     },
     ultra: { 
       price: 4.00, 
@@ -87,23 +88,49 @@ export default function ZamaAuctionCalculator() {
   };
 
   const calculateAllocation = (clearingPrice) => {
+    // OG NFT holders always get their 40K ZAMA at floor price
+    const ogBonusTokens = hasOGNFT ? 40000 : 0;
+    const ogBonusCost = hasOGNFT ? 40000 * 0.005 : 0; // $200 for OG bonus
+    
     if (bidPrice < clearingPrice) {
+      // Even if bid is too low, OG NFT holders get their bonus
+      if (hasOGNFT) {
+        const totalPotentialCost = totalInvestment + ogBonusCost;
+        return {
+          tokensReceived: ogBonusTokens,
+          refund: totalInvestment, // Full refund since normal bid wasn't accepted
+          finalCost: ogBonusCost,
+          totalPotentialCost,
+          allocation: (ogBonusTokens / totalSupply) * 100
+        };
+      }
+      
       return {
         tokensReceived: 0,
         refund: totalInvestment,
         finalCost: 0,
+        totalPotentialCost: totalInvestment,
         allocation: 0
       };
     }
 
-    const tokensReceived = quantity;
-    const finalCost = tokensReceived * clearingPrice;
-    const refund = totalInvestment - finalCost;
+    // Bid is valid, calculate normal allocation + OG bonus
+    let tokensReceived = quantity;
+    
+    if (hasOGNFT) {
+      tokensReceived = tokensReceived + ogBonusTokens;
+    }
+    
+    const normalCost = quantity * clearingPrice;
+    const finalCost = normalCost + ogBonusCost;
+    const totalPotentialCost = totalInvestment + ogBonusCost;
+    const refund = totalInvestment - normalCost; // Refund only the non-accepted portion
 
     return {
       tokensReceived: Math.floor(tokensReceived),
       refund: refund > 0 ? refund : 0,
       finalCost,
+      totalPotentialCost,
       allocation: (tokensReceived / totalSupply) * 100
     };
   };
@@ -240,11 +267,6 @@ export default function ZamaAuctionCalculator() {
           
           <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm">
             <div className="flex items-center gap-2 bg-zinc-900/50 border border-yellow-500/20 rounded-lg px-4 py-2">
-              <span className="text-yellow-400 font-bold">DEC 14</span>
-              <span className="text-gray-400">•</span>
-              <span className="text-gray-300">Registration</span>
-            </div>
-            <div className="flex items-center gap-2 bg-zinc-900/50 border border-yellow-500/20 rounded-lg px-4 py-2">
               <span className="text-yellow-400 font-bold">JAN 12-15</span>
               <span className="text-gray-400">•</span>
               <span className="text-gray-300">Auction</span>
@@ -305,13 +327,53 @@ export default function ZamaAuctionCalculator() {
               </div>
             </div>
 
+            {/* OG NFT Holder Toggle */}
+            <div className="mt-6">
+              <label className="block text-sm font-medium mb-3 text-gray-300">
+                OG NFT Holder Status
+              </label>
+              <button
+                onClick={() => setHasOGNFT(!hasOGNFT)}
+                className={`w-full p-4 rounded-xl border-2 transition-all relative group ${
+                  hasOGNFT
+                    ? 'border-yellow-500 bg-yellow-500/20'
+                    : 'border-zinc-700/50 bg-zinc-900/50 hover:border-yellow-500/40'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                      hasOGNFT
+                        ? 'border-yellow-500 bg-yellow-500/30'
+                        : 'border-zinc-600'
+                    }`}>
+                      {hasOGNFT && (
+                        <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                      )}
+                    </div>
+                    <div className="text-left">
+                      <div className={`font-bold ${hasOGNFT ? 'text-yellow-400' : 'text-gray-300'}`}>
+                        {hasOGNFT ? '🎖️ OG NFT Holder' : 'No OG NFT'}
+                      </div>
+                      <div className="text-xs text-gray-400 mt-0.5">
+                        {hasOGNFT ? '+40,000 ZAMA at $0.005' : 'Click if you hold OG NFT'}
+                      </div>
+                    </div>
+                  </div>
+                  {hasOGNFT && (
+                    <div className="text-2xl">✨</div>
+                  )}
+                </div>
+              </button>
+            </div>
+
             <div className="mt-6">
               <label className="block text-sm font-medium mb-3 text-gray-300">
                 Select a Clearing Price Scenario
               </label>
               <div className="mb-3 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
                 <p className="text-xs text-blue-300">
-                  🔮 Based on <a href="https://polymarket.com/event/zama-fdv-above-one-day-after-launch" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-200">Polymarket</a> odds (Updated: Dec 11, 2024)
+                  🔮 Based on <a href="https://polymarket.com/event/zama-fdv-above-one-day-after-launch" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-200">Polymarket</a> odds (Updated: Dec 28, 2024)
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -439,10 +501,10 @@ export default function ZamaAuctionCalculator() {
                   <div className="bg-black/50 border border-yellow-500/40 rounded-xl p-4">
                     <div className="text-sm text-yellow-300 mb-1">📊 Bid Acceptance Rate</div>
                     <div className="text-2xl font-bold text-yellow-400">
-                      {((results.finalCost / totalInvestment) * 100).toFixed(1)}%
+                      {((results.finalCost / results.totalPotentialCost) * 100).toFixed(1)}%
                     </div>
                     <div className="text-xs text-gray-400 mt-1">
-                      {formatNumber(results.finalCost)} of {formatNumber(totalInvestment)} invested
+                      {formatNumber(results.finalCost)} of {formatNumber(results.totalPotentialCost)} total
                     </div>
                   </div>
                 </div>
@@ -620,32 +682,32 @@ export default function ZamaAuctionCalculator() {
                     </div>
                     
                     <div className={`border rounded-lg p-3 ${
-                      ((results.finalCost / totalInvestment) * 100) >= 65 
+                      ((results.finalCost / results.totalPotentialCost) * 100) >= 65 
                         ? 'bg-green-500/20 border-green-500/40' 
-                        : ((results.finalCost / totalInvestment) * 100) >= 40 
+                        : ((results.finalCost / results.totalPotentialCost) * 100) >= 40 
                         ? 'bg-yellow-500/20 border-yellow-500/40'
-                        : ((results.finalCost / totalInvestment) * 100) >= 21
+                        : ((results.finalCost / results.totalPotentialCost) * 100) >= 21
                         ? 'bg-orange-500/20 border-orange-500/40'
                         : 'bg-red-500/20 border-red-500/40'
                     }`}>
                       <div className={`text-xs mb-1 ${
-                        ((results.finalCost / totalInvestment) * 100) >= 65 
+                        ((results.finalCost / results.totalPotentialCost) * 100) >= 65 
                           ? 'text-green-300' 
-                          : ((results.finalCost / totalInvestment) * 100) >= 40 
+                          : ((results.finalCost / results.totalPotentialCost) * 100) >= 40 
                           ? 'text-yellow-300'
-                          : ((results.finalCost / totalInvestment) * 100) >= 21
+                          : ((results.finalCost / results.totalPotentialCost) * 100) >= 21
                           ? 'text-orange-300'
                           : 'text-red-300'
                       }`}>Bid Acceptance</div>
                       <div className={`text-lg font-bold ${
-                        ((results.finalCost / totalInvestment) * 100) >= 65 
+                        ((results.finalCost / results.totalPotentialCost) * 100) >= 65 
                           ? 'text-green-400' 
-                          : ((results.finalCost / totalInvestment) * 100) >= 40 
+                          : ((results.finalCost / results.totalPotentialCost) * 100) >= 40 
                           ? 'text-yellow-400'
-                          : ((results.finalCost / totalInvestment) * 100) >= 21
+                          : ((results.finalCost / results.totalPotentialCost) * 100) >= 21
                           ? 'text-orange-400'
                           : 'text-red-400'
-                      }`}>{((results.finalCost / totalInvestment) * 100).toFixed(1)}%</div>
+                      }`}>{((results.finalCost / results.totalPotentialCost) * 100).toFixed(1)}%</div>
                     </div>
                   </div>
                   
@@ -670,7 +732,7 @@ export default function ZamaAuctionCalculator() {
               </button>
               <button 
                 onClick={() => {
-                  const tweetText = `My ZAMA Auction Strategy 🚀\n\n📊 Tokens Allocated: ${formatTokens(results.tokensReceived)} ZAMA\n✅ Bid Acceptance: ${((results.finalCost / totalInvestment) * 100).toFixed(1)}%\n💎 Scenario: ${currentScenario.label}\n💰 Clearing Price: $${currentScenario.price}\n\nCalculate yours Zama Auction Allocation | by @cryptex0x0`;
+                  const tweetText = `My ZAMA Auction Strategy 🚀\n\n📊 Tokens Allocated: ${formatTokens(results.tokensReceived)} ZAMA\n✅ Bid Acceptance: ${((results.finalCost / results.totalPotentialCost) * 100).toFixed(1)}%\n💎 Scenario: ${currentScenario.label}\n💰 Clearing Price: $${currentScenario.price}\n\nCalculate yours Zama Auction Allocation | by @cryptex0x0`;
                   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
                   window.open(twitterUrl, '_blank');
                 }}
