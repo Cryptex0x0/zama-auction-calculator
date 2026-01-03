@@ -48,28 +48,28 @@ export default function ZamaAuctionCalculator() {
       fdv: 600000000, 
       label: 'Conservative', 
       color: 'text-yellow-400',
-      probability: 59
+      probability: 77
     },
     base: { 
       price: 0.80, 
       fdv: 800000000, 
       label: 'Base', 
       color: 'text-yellow-400',
-      probability: 35
+      probability: 44
     },
     optimistic: { 
       price: 1.00, 
       fdv: 1000000000, 
       label: 'Optimistic', 
       color: 'text-yellow-400',
-      probability: 19
+      probability: 20
     },
     bullish: { 
       price: 2.00, 
       fdv: 2000000000, 
       label: 'Bullish', 
       color: 'text-yellow-400',
-      probability: 6
+      probability: 11
     },
     moon: { 
       price: 3.00, 
@@ -373,7 +373,7 @@ export default function ZamaAuctionCalculator() {
               </label>
               <div className="mb-3 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
                 <p className="text-xs text-blue-300">
-                  🔮 Based on <a href="https://polymarket.com/event/zama-fdv-above-one-day-after-launch" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-200">Polymarket</a> odds (Updated: Dec 28, 2024)
+                  🔮 Based on <a href="https://polymarket.com/event/zama-fdv-above-one-day-after-launch" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-200">Polymarket</a> odds (Updated: Jan 2, 2025)
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-2">
